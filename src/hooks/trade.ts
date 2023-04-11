@@ -33,8 +33,7 @@ export const useTrade = () => {
     const isMaker = pathname === '/create';
 
     const buildTradeObj = ({ getsAmount, getsToken, givesAmount, givesToken }: IOffer): IOffer => {
-        if (!getsToken && !getsAmount && !givesAmount && !givesToken)
-            return EMPTY_TRADE;
+        if (!getsToken && !getsAmount && !givesAmount && !givesToken) return EMPTY_TRADE;
         const foundGivesToken = TOKENS.find((el) => el.symbol === givesToken);
         const foundGetsToken = TOKENS.find((el) => el.symbol === getsToken);
         return {
@@ -43,9 +42,7 @@ export const useTrade = () => {
             givesAmount: ethers.utils
                 .parseUnits(givesAmount, getDecimals(givesToken))
                 .toHexString(),
-            getsAmount: ethers.utils
-                .parseUnits(getsAmount, getDecimals(getsToken))
-                .toHexString(),
+            getsAmount: ethers.utils.parseUnits(getsAmount, getDecimals(getsToken)).toHexString(),
         };
     };
 
@@ -96,53 +93,53 @@ export const useTrade = () => {
     // Get single trade or all peer trades
     const getTrades = async (multiAddr: string, orderHash?: string) => {
         setLoadingTrade(true);
-            const trade = orderHash ? openTrades.get(orderHash) : undefined;
-            // MAKER
-            if (trade) setTrade(trade);
-            // TAKER
-            else {
-                if (pintswap.module) {
-                    try {
-                        console.log('Discovery:', await (window as any).discoveryDeferred.promise);
-                        const { offers }: IOrderbookProps = await pintswap.module.getTradesByPeerId(
-                            multiAddr,
-                        );
-                        if (TESTING) console.log('Offers:', offers);
-                        if (offers?.length > 0) {
-                            // If only multiAddr
-                            if(!orderHash) {
-                                const map = new Map(offers.map((offer) => [hashOffer(offer), offer]));
-                                setPeerOrders(map);
-                            }
-                            // Set first found trade as trade state
-                            const foundGivesToken = TOKENS.find(
-                                (el) =>
-                                    el.address.toLowerCase() === offers[0].givesToken.toLowerCase(),
-                            );
-                            const foundGetsToken = TOKENS.find(
-                                (el) =>
-                                    el.address.toLowerCase() === offers[0].getsToken.toLowerCase(),
-                            );
-                            setTrade({
-                                givesToken: foundGivesToken?.symbol || offers[0].givesToken,
-                                givesAmount: ethers.utils.formatUnits(
-                                    offers[0].givesAmount,
-                                    foundGivesToken?.decimals || 18,
-                                ),
-                                getsToken: foundGetsToken?.symbol || offers[0].getsToken,
-                                getsAmount: ethers.utils.formatUnits(
-                                    offers[0].getsAmount,
-                                    foundGetsToken?.decimals || 18,
-                                ),
-                            });
+        const trade = orderHash ? openTrades.get(orderHash) : undefined;
+        // MAKER
+        if (trade) setTrade(trade);
+        // TAKER
+        else {
+            if (pintswap.module) {
+                try {
+                    console.log('Discovery:', await (window as any).discoveryDeferred.promise);
+                    console.log('getting trades', multiAddr);
+                    const { offers }: IOrderbookProps = await pintswap.module.getTradesByPeerId(
+                        multiAddr,
+                    );
+                    console.log('Offers:', offers);
+                    if (TESTING) console.log('Offers:', offers);
+                    if (offers?.length > 0) {
+                        // If only multiAddr
+                        if (!orderHash) {
+                            const map = new Map(offers.map((offer) => [hashOffer(offer), offer]));
+                            setPeerOrders(map);
                         }
-                    } catch (err) {
-                        console.error('Error in trade.ts#getTrade:', err);
-                        setError(true);
-                        updateToast('findPeer', 'error', 'Error while finding peer')
+                        // Set first found trade as trade state
+                        const foundGivesToken = TOKENS.find(
+                            (el) => el.address.toLowerCase() === offers[0].givesToken.toLowerCase(),
+                        );
+                        const foundGetsToken = TOKENS.find(
+                            (el) => el.address.toLowerCase() === offers[0].getsToken.toLowerCase(),
+                        );
+                        setTrade({
+                            givesToken: foundGivesToken?.symbol || offers[0].givesToken,
+                            givesAmount: ethers.utils.formatUnits(
+                                offers[0].givesAmount,
+                                foundGivesToken?.decimals || 18,
+                            ),
+                            getsToken: foundGetsToken?.symbol || offers[0].getsToken,
+                            getsAmount: ethers.utils.formatUnits(
+                                offers[0].getsAmount,
+                                foundGetsToken?.decimals || 18,
+                            ),
+                        });
                     }
+                } catch (err) {
+                    console.error('Error in trade.ts#getTrade:', err);
+                    setError(true);
+                    updateToast('findPeer', 'error', 'Error while finding peer');
                 }
             }
+        }
         setLoadingTrade(false);
     };
 
@@ -172,14 +169,17 @@ export const useTrade = () => {
         const getter = async () => {
             if (pathname.includes('/')) {
                 const splitUrl = pathname.split('/');
-                if (splitUrl.length === 3) { // If multiAddr and orderHash
+                if (splitUrl.length === 3) {
+                    // If multiAddr and orderHash
                     setOrder({ multiAddr: splitUrl[1], orderHash: splitUrl[2] });
-                    if(TESTING) console.log('get trade:', splitUrl[2]);
+                    if (TESTING) console.log('get trade:', splitUrl[2]);
                     if (steps[1].status !== 'current') updateSteps('Fulfill');
+                    console.log([splitUrl[1], splitUrl[2]]);
                     await getTrades(splitUrl[1], splitUrl[2]);
-                } else if (splitUrl.length === 2) { // Only multiAddr
+                } else if (splitUrl.length === 2) {
+                    // Only multiAddr
                     setOrder({ multiAddr: splitUrl[1], orderHash: '' });
-                    await getTrades(splitUrl[1]); 
+                    await getTrades(splitUrl[1]);
                 }
             }
         };
@@ -188,8 +188,8 @@ export const useTrade = () => {
     }, [pintswap.module, peer.module]);
 
     /*
-    * TRADE EVENT MANAGER - START
-    */
+     * TRADE EVENT MANAGER - START
+     */
     const peerListener = (step: 0 | 1 | 2 | 3) => {
         switch (step) {
             case 0:
@@ -216,11 +216,11 @@ export const useTrade = () => {
                 toast('Taker is fulfilling trade...');
                 break;
             case 1:
-                console.log("MAKER: taker approved trade");
-                toast('Taker is approving trade...')
+                console.log('MAKER: taker approved trade');
+                toast('Taker is approving trade...');
                 break;
             case 2:
-                console.log("MAKER: swap is complete");
+                console.log('MAKER: swap is complete');
                 updateSteps('Complete'); // only for maker
                 break;
         }
@@ -272,7 +272,7 @@ export const useTrade = () => {
             const broadcastListener = (hash: string) => {
                 if (TESTING) console.log(`Trade Broadcasted', ${hash}`);
                 setOrder({ multiAddr: pintswap.module?.peerId.toB58String(), orderHash: hash });
-                if(TESTING) console.log(buildTradeObj(trade))
+                if (TESTING) console.log(buildTradeObj(trade));
                 addTrade(hash, buildTradeObj(trade));
                 updateSteps('Fulfill');
             };
@@ -284,8 +284,8 @@ export const useTrade = () => {
         return () => {};
     }, [pintswap.module, trade]);
     /*
-    * TRADE EVENT MANAGER - END
-    */
+     * TRADE EVENT MANAGER - END
+     */
 
     return {
         loading,
@@ -299,6 +299,6 @@ export const useTrade = () => {
         updateSteps,
         loadingTrade,
         error,
-        peerOrders
+        peerOrders,
     };
 };
