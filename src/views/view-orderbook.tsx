@@ -7,8 +7,8 @@ import { useGlobalContext } from '../stores/global';
 
 export const ViewOrderbookView = () => {
     const navigate = useNavigate();
-    const { pintswap } = useGlobalContext();
-    const { peerOrders, error, order } = useTrade();
+    const { pintswap, peerTrades } = useGlobalContext();
+    const { error, order } = useTrade();
     
     return (
         <div className="flex flex-col gap-6">
@@ -21,8 +21,13 @@ export const ViewOrderbookView = () => {
             <Card header="Open Trades" scroll>
                 <Table
                     headers={['Hash', 'Giving', 'Getting']}
+<<<<<<< HEAD
                     onClick={(order: any) => navigate(`/${window.location.hash.split('/')[1] || ethers.constants.AddressZero}/${order.hash}`)}
                     items={Array.from(peerOrders, (entry) => ({ 
+=======
+                    onClick={(order: any) => navigate(`/${pintswap?.module?.peerId.toB58String()}/${order.hash}`)}
+                    items={Array.from(peerTrades, (entry) => ({ 
+>>>>>>> 457b1103dde7ed52938f73db08b2cb1550cdecc1
                         hash: entry[0],
                         gives: `${entry[1].givesAmount} ${entry[1].givesToken}`,
                         gets: `${entry[1].getsAmount} ${entry[1].getsToken}`,

@@ -3,13 +3,12 @@ import { useSigner } from 'wagmi';
 import { Pintswap, IOffer } from 'pintswap-sdk';
 import PeerId, { JSONPeerId } from 'peer-id';
 import { defer, EMPTY_PEER, TESTING } from '../utils/common';
-import { toast } from 'react-toastify';
-import { ToastStatus, updateToast } from '../utils/toast';
 
 // Types
 export type IGlobalStoreProps = {
     openTrades: Map<string, IOffer>;
     addTrade: (hash: string, { givesToken, givesAmount, getsToken, getsAmount }: IOffer) => void;
+    peerTrades: Map<string, IOffer>;
     pintswap: {
         module: Pintswap | undefined;
         loading: boolean;
@@ -22,6 +21,7 @@ export type IGlobalStoreProps = {
     };
     setPeer?: any;
     setPintswap?: any;
+    setPeerTrades?: any;
 };
 
 export type IPintswapProps = {
@@ -39,6 +39,7 @@ export type IPeerProps = {
 // Context
 const GlobalContext = createContext<IGlobalStoreProps>({
     openTrades: new Map(),
+    peerTrades: new Map(),
     addTrade(hash, { givesToken, givesAmount, getsToken, getsAmount }) {},
     pintswap: {
         module: undefined,
@@ -57,8 +58,11 @@ const GlobalContext = createContext<IGlobalStoreProps>({
 
 // Wrapper
 export function GlobalStore(props: { children: ReactNode }) {
-    const [openTrades, setOpenTrades] = useState<Map<string, IOffer>>(new Map());
     const { data: signer } = useSigner();
+
+    const [openTrades, setOpenTrades] = useState<Map<string, IOffer>>(new Map());
+    const [peerTrades, setPeerTrades] = useState<Map<string, IOffer>>(new Map());
+
     const [pintswap, setPintswap] = useState<IPintswapProps>({
         module: undefined,
         loading: true,
@@ -139,6 +143,8 @@ export function GlobalStore(props: { children: ReactNode }) {
                 peer,
                 setPeer,
                 setPintswap,
+                peerTrades,
+                setPeerTrades
             }}
         >
             {props.children}
