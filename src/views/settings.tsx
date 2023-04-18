@@ -1,5 +1,6 @@
 import React from 'react';
 import { Buffer } from 'buffer';
+import { useGlobalContext } from '../stores';
 import * as jimp from 'jimp';
 
 async function manipulateImage(imgBuf: Buffer) {
@@ -7,9 +8,24 @@ async function manipulateImage(imgBuf: Buffer) {
 }
 
 export function ProfileView() {
+    const { pintswap } = useGlobalContext();
     let [bio, setBio] = React.useState<string>('');
+    let [initialized, setInitialized] = React.useState<boolean>(false);
     let [shortAddress, setShortAddress] = React.useState<string>('');
     let [profilePic, setProfilePic] = React.useState<string | Buffer | Uint8Array | null>(null);
+
+    /*
+     * check if pintswap module is initialized and/or has starting vals for bio, shortaddress, setProfilePic
+     * only should run if pintswap is initialized and only run once
+     */
+    React.useEffect(() => {
+        if (pintswap.module && !initialized) {
+            let { bio: _bio, image: _image } = (pintswap.module as any).userData;
+            if (_bio !== '') setBio(_bio);
+            if (_image) setProfilePic(_image);
+            setInitialized(true);
+        }
+    }, [pintswap.module, initialized]);
 
     async function processImage(e: any) {
         let image = (e.target.files as any)[0] ?? null;
@@ -30,9 +46,7 @@ export function ProfileView() {
     }
 
     function updateText(e: any) {
-        setShortAddress(
-            e.target.value.slice(0, -5) + e.target.value.slice(e.target.value.length - 1),
-        );
+        setShortAddress(e.target.value);
     }
 
     return (
@@ -55,7 +69,7 @@ export function ProfileView() {
             <div>
                 <h1 className="text-lg">Address</h1>
                 <input
-                    value={`${shortAddress}.drip`}
+                    value={`${shortAddress}`}
                     className="font-titillium text-black"
                     type="text"
                     name="short-address"
@@ -71,6 +85,9 @@ export function ProfileView() {
                     name="bio"
                     onChange={updateBio}
                 />
+            </div>
+            <div>
+                <button onClick={() => null}>Save</button>
             </div>
         </>
     );

@@ -1067,6 +1067,9 @@ html,
 .font-gothic{
   font-family: Pathway Gothic One, sans-serif;
 }
+.font-titillium{
+  font-family: Titillium Web, sans-serif;
+}
 .text-3xl{
   font-size: 1.875rem;
   line-height: 2.25rem;
@@ -1092,6 +1095,10 @@ html,
 }
 .font-semibold{
   font-weight: 600;
+}
+.text-black{
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity));
 }
 .text-gray-400{
   --tw-text-opacity: 1;
