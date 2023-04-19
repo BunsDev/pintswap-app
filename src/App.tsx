@@ -8,6 +8,7 @@ import {
     HomeView,
     PeerOrderbookView,
     ProfileView,
+    BroadcastView,
 } from './views';
 import { setFallbackWETH } from '@pintswap/sdk';
 import { ToastContainer } from 'react-toastify';
@@ -27,6 +28,7 @@ function App() {
                     <Route path="/:address/:multiaddr" element={<FulfillView />} />
                     <Route path="/:address" element={<PeerOrderbookView />} />
                     <Route path="/profile" element={<ProfileView />} />
+                    <Route path="/broadcast" element={<BroadcastView />} />
                     <Route path="/open" element={<ActiveOrderbookView />} />
                 </Routes>
             </Base>

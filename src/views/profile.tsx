@@ -1,21 +1,22 @@
 import React from 'react';
 import { Buffer } from 'buffer';
 import { useGlobalContext } from '../stores';
-const Jimp = require("jimp");
 
 export function ProfileView() {
     const { pintswap } = useGlobalContext();
     let [bio, setBio] = React.useState<string>('');
     let [initialized, setInitialized] = React.useState<boolean>(false);
     let [shortAddress, setShortAddress] = React.useState<string>('');
-    let [profilePic, setProfilePic] = React.useState<string | Buffer | Uint8Array | null>(new Uint8Array(0));
+    let [profilePic, setProfilePic] = React.useState<Buffer | Uint8Array | null>(new Uint8Array(0));
 
     function saveConfig() {
-        if (!pintswap.module) throw new Error("no pintswap module");
+        if (!pintswap.module) throw new Error('no pintswap module');
         try {
-            let profile = { bio, image: profilePic as any }; 
             pintswap.module.userData = { bio, image: profilePic as any };
-            localStorage.setItem("_pintUser", JSON.stringify(pintswap.module.toObject()));
+            pintswap.module.setBio(bio);
+            pintswap.module.setImage(profilePic as Buffer);
+            pintswap.module.registerName(shortAddress);
+            localStorage.setItem('_pintUser', JSON.stringify(pintswap.module.toObject()));
         } catch (error) {
             console.log(error);
         }
@@ -27,7 +28,10 @@ export function ProfileView() {
      */
     React.useEffect(() => {
         if (pintswap.module && !initialized) {
-            let { bio: _bio, image: _image } = (pintswap.module as any).userData ?? { bio: "", image: new Uint8Array(0)};
+            let { bio: _bio, image: _image } = (pintswap.module as any).userData ?? {
+                bio: '',
+                image: new Uint8Array(0),
+            };
             if (_bio !== '') setBio(_bio);
             if (_image) setProfilePic(_image);
             setInitialized(true);
@@ -36,16 +40,8 @@ export function ProfileView() {
 
     async function processImage(e: any) {
         let image = (e.target.files as any)[0] ?? null;
-        let _u64a = new Uint8Array(await image.arrayBuffer());
         let _buff = Buffer.from(await image.arrayBuffer());
-        let _b64 =
-            typeof Jimp.read === 'function'
-                ? await (await Jimp.read(_buff))
-                      .resize(50, 50)
-                      .quality(20)
-                      .getBase64Async('image/jpg')
-                : _buff.toString('base64');
-        setProfilePic(_b64);
+        setProfilePic(_buff);
     }
 
     function updateBio(e: any) {
@@ -60,7 +56,7 @@ export function ProfileView() {
         <>
             <div>
                 <img
-                    src={`data:image/jpg;base64,${profilePic}`}
+                    src={`data:image/jpg;base64,${profilePic?.toString('base64')}`}
                     height={125}
                     width={125}
                     className="rounded-full"
@@ -95,6 +91,9 @@ export function ProfileView() {
             </div>
             <div>
                 <button onClick={saveConfig}>Save</button>
+            </div>
+            <div>
+                <button>Broadcast</button>
             </div>
         </>
     );

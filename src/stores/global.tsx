@@ -1,10 +1,4 @@
-import {
-    createContext,
-    ReactNode,
-    useContext,
-    useEffect,
-    useState,
-} from 'react';
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { useSigner } from 'wagmi';
 import { Pintswap } from '@pintswap/sdk';
 import PeerId, { JSONPeerId } from 'peer-id';
@@ -76,7 +70,13 @@ export function GlobalStore(props: { children: ReactNode }) {
             const ps: Pintswap = await new Promise((resolve, reject) => {
                 (async () => {
                     try {
-                        const ps = await Pintswap.initialize({ awaitReceipts: false, signer });
+                        const ps =
+                            typeof localStorage.getItem('_pintUser') === 'string'
+                                ? await Pintswap.fromObject(
+                                      JSON.parse(localStorage.getItem('_pintUser') as string),
+                                      signer,
+                                  )
+                                : await Pintswap.initialize({ awaitReceipts: false, signer });
                         (window as any).ps = ps;
                         ps.on('pintswap/node/status', (s: any) => {
                             if (TESTING) console.log('Node emitting', s);
