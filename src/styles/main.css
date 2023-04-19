@@ -1033,6 +1033,10 @@ html,
   padding-left: 1rem;
   padding-right: 1rem;
 }
+.px-\[10px\]{
+  padding-left: 10px;
+  padding-right: 10px;
+}
 .py-1{
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
@@ -1074,6 +1078,9 @@ html,
   font-size: 1.875rem;
   line-height: 2.25rem;
 }
+.text-\[25px\]{
+  font-size: 25px;
+}
 .text-lg{
   font-size: 1.125rem;
   line-height: 1.75rem;
@@ -1095,6 +1102,12 @@ html,
 }
 .font-semibold{
   font-weight: 600;
+}
+.uppercase{
+  text-transform: uppercase;
+}
+.tracking-widest{
+  letter-spacing: 0.1em;
 }
 .text-black{
   --tw-text-opacity: 1;

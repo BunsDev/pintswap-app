@@ -7,7 +7,8 @@ export function BroadcastView() {
     return (
         <>
             <div>
-                {pintswap.module &&
+                {pintswap.module && // should display all orders the user currently has
+                    //TODO
                     Array.from(pintswap.module.offers.values()).map((i) => {
                         return <div key="s">data</div>;
                     })}
