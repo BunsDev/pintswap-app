@@ -30,7 +30,7 @@ export const Card = ({ children, className, header, scroll, type, tabs }: ICardP
                             {tabs.map((tab, i) => (
                                 <Tab key={`tabs-${i}`} className="focus-visible:outline-none">
                                     {({ selected }) => (
-                                        <button className={`${selected ? 'border-indigo-600' : 'border-transparent hover:border-neutral-800 hover:text-indigo-100'} border-b-2 lg:border-b-4 rounded w-full pb-2 transition duration-200`}>
+                                        <button className={`${selected ? 'border-indigo-600' : 'border-neutral-800 text-neutral-400 hover:text-neutral-300'} border-b-2 lg:border-b-4 rounded w-full pb-2 transition duration-200`}>
                                             {tab}
                                         </button>
                                     )}

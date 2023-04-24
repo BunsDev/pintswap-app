@@ -31,6 +31,7 @@ const resolveName = async (pintswap: any, name: any) => {
 };
 
 export const useTrade = () => {
+    const params = useParams();
     const { pathname } = useLocation();
     const { pintswap, peer } = useGlobalContext();
     const { addTrade, openTrades, peerTrades, setPeerTrades, setOpenTrades } = useOffersContext();
@@ -104,8 +105,7 @@ export const useTrade = () => {
 
     // Get single trade or all peer trades
     const getTrades = async (multiAddr: string, orderHash?: string) => {
-        console.log(multiAddr, orderHash);
-        console.log('GET TRADES', multiAddr);
+        console.log("GETTING TRADES:", multiAddr, orderHash)
         let resolved = multiAddr;
         const ps = pintswap.module;
         if (multiAddr.match(/\.drip$/) && ps) resolved = await resolveName(ps, multiAddr);
