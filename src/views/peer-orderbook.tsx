@@ -1,5 +1,5 @@
 import { ethers } from 'ethers6';
-import { Avatar, Card, NFTTable, DataTable } from '../components';
+import { Avatar, Card, NFTTable, DataTable, TransitionModal } from '../components';
 import { useTrade } from '../hooks/trade';
 import { useGlobalContext } from '../stores/global';
 import { toLimitOrder } from '../utils/orderbook';
@@ -128,7 +128,10 @@ export const PeerOrderbookView = () => {
     const filteredNfts = useMemo(() => sorted.nfts.filter((v: any) => isERC721Transfer(v.gives)).slice(0, 6), [ sorted.nfts ]);
     return (
         <div className="flex flex-col gap-6">
-            <Avatar peer={peer} withBio withName align="left" size={60} type="profile" />
+            <TransitionModal button={<Avatar peer={peer} withBio withName align="left" size={60} type="profile" />}>
+                <Avatar peer={peer} size={300} />
+            </TransitionModal>
+            
             <Card tabs={TABS} type="tabs" scroll={limitOrders.length > 0}>
                 <Tab.Panel>
                     <DataTable
